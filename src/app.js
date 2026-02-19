@@ -14,13 +14,11 @@ app.use(cors({
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type"]
 }));
-
 app.use(express.json());
 
 app.use("/products", productsRoutes);
 app.use("/orders", ordersRoutes);
 app.use("/orders", orderProductsRoutes);
-
 
 app.get("/", (req, res) => {
     res.json({ message: "API Running" });
