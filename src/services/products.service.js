@@ -75,16 +75,33 @@ exports.updateProduct = (id, { name, unit_price }) => {
 
 exports.deleteProduct = (id) => {
     return new Promise((resolve, reject) => {
-        const query = "DELETE FROM products WHERE id = ?";
 
-        db.query(query, [id], (err, result) => {
+        const checkQuery = `
+            SELECT o.order_number 
+            FROM order_products op
+            JOIN orders o ON op.order_id = o.id
+            WHERE op.product_id = ?
+        `;
+
+        db.query(checkQuery, [id], (err, results) => {
             if (err) return reject(err);
 
-            if (!result || result.affectedRows === 0) {
-                return reject(new Error("Product not found"));
+            if (results.length > 0) {
+                const orderNumbers = results.map(r => r.order_number).join(", ");
+                return reject(new Error(`Cannot delete product, it is used in order(s): ${orderNumbers}`));
             }
 
-            resolve({ message: "Product deleted" });
+            const deleteQuery = "DELETE FROM products WHERE id = ?";
+
+            db.query(deleteQuery, [id], (err, result) => {
+                if (err) return reject(err);
+
+                if (!result || result.affectedRows === 0) {
+                    return reject(new Error("Product not found"));
+                }
+
+                resolve({ message: "Product deleted" });
+            });
         });
     });
 };
