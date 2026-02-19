@@ -75,13 +75,12 @@ exports.updateProduct = (id, { name, unit_price }) => {
 
 exports.deleteProduct = (id) => {
     return new Promise((resolve, reject) => {
-
         const query = "DELETE FROM products WHERE id = ?";
 
-        db.query(query, [id], (err, result) => {
-            if (err) reject(err);
+        pool.query(query, [id], (err, result) => {
+            if (err) return reject(err);
 
-            if (result.affectedRows === 0) {
+            if (!result || result.affectedRows === 0) {
                 return reject(new Error("Product not found"));
             }
 
