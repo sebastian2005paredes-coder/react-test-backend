@@ -120,12 +120,18 @@ exports.updateOrderStatus = (id, status) => {
 
 exports.deleteOrder = (id) => {
     return new Promise((resolve, reject) => {
-        db.query("SELECT status FROM orders WHERE id = ?", [id], (err, results) => {
-            if (err) return reject(err);
-            if (results.length === 0) return reject(new Error("Order not found"));
-            if (results[0].status === "Completed") return reject(new Error("Completed orders cannot be deleted"));
+        const checkQuery = "SELECT status FROM orders WHERE id = ?";
 
-            db.query("DELETE FROM orders WHERE id = ?", [id], (err) => {
+        db.query(checkQuery, [id], (err, results) => {
+            if (err) return reject(err);
+
+            if (results.length === 0) {
+                return reject(new Error("Order not found"));
+            }
+
+            const deleteQuery = "DELETE FROM orders WHERE id = ?";
+
+            db.query(deleteQuery, [id], (err) => {
                 if (err) return reject(err);
                 resolve({ message: "Order deleted" });
             });
