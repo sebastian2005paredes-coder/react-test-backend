@@ -77,7 +77,7 @@ exports.deleteProduct = (id) => {
     return new Promise((resolve, reject) => {
         const query = "DELETE FROM products WHERE id = ?";
 
-        pool.query(query, [id], (err, result) => {
+        db.query(query, [id], (err, result) => {
             if (err) return reject(err);
 
             if (!result || result.affectedRows === 0) {
